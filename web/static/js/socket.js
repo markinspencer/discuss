@@ -12,8 +12,11 @@ const createSocket = topicId => {
     .receive("error", resp => console.log("Unable to join", resp));
 
   document.querySelector("button").addEventListener("click", () => {
-    const content = document.querySelector("textarea").value;
+    const textArea = document.querySelector("textarea");
+    const content = textArea.value;
     channel.push("comment:add", { content });
+
+    textArea.value = "";
   });
 
   channel.on(`comments:${topicId}:new`, renderComment);
@@ -29,7 +32,11 @@ const renderComment = ({ comment }) => {
   document.querySelector(".collection").innerHTML += renderedComment;
 };
 
-const commentTemplate = comment =>
-  `<li class="collection-item"> ${comment.content} </li>`;
+const commentTemplate = comment => {
+  let email = comment.user ? comment.user.email : "Anonymous";
+  return `<li class="collection-item"> ${
+    comment.content
+  } <div class="secondary-content"> ${email} </div> </li>`;
+};
 
 window.createSocket = createSocket;
