@@ -15,12 +15,12 @@ defmodule Discuss.CommentsChannel do
   def handle_in(
     name, 
     %{"content" => content}, 
-    %{assigns: %{topic: topic}} = socket) 
+    %{assigns: %{topic: topic, user_id: user_id}} = socket) 
   do 
     changeset = 
       topic
-      |> build_assoc(:comments)
-      |> Comment.changeset(%{ content: content})
+      |> build_assoc(:comments, user_id: user_id )
+      |> Comment.changeset(%{ content: content })
 
     case Repo.insert(changeset) do 
       {:ok, comment} ->
@@ -29,7 +29,7 @@ defmodule Discuss.CommentsChannel do
           "comments:#{socket.assigns.topic.id}:new", 
           %{comment: comment}
         )
-        
+
         {:reply, :ok, socket}
       {:error, _reason } ->
         {:reply, {:error, %{errors: changeset}}, socket} 
